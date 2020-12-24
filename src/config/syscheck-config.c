@@ -742,7 +742,7 @@ char *validate_path(char *dir) {
         tmp_str--;
     }
 
-    if (!strcmp(tmp_dir,"")) {
+    if (*tmp_dir == '\0') {
         mdebug2(FIM_EMPTY_DIRECTORIES_CONFIG);
         return NULL;
     }
@@ -755,7 +755,7 @@ char *format_path(char *dir) {
     char *tmp_str;
     char buffer[PATH_MAX];
 
-    if(!strcmp(dir, "") || dir == NULL) {
+    if(dir == NULL || *dir == '\0') {
         return NULL;
     }
 
@@ -2518,7 +2518,8 @@ static void process_option(char ***syscheck_option, xml_node *node) {
     char **new_opt = NULL;
 
     tmp_dir = validate_path(dir);
-    if (!tmp_dir) {
+    if (tmp_dir == NULL) {
+        os_free(dir);
         return;
     }
 
@@ -2536,7 +2537,7 @@ static void process_option(char ***syscheck_option, xml_node *node) {
     }
 
     for (int i = 0; new_opt[i]; i++) {
-        if(strcmp(new_opt[i], "")) {
+        if(*new_opt[i] != '\0') {
             real_path = format_path(new_opt[i]);
             if (real_path && !os_IsStrOnArray(dir, syscheck_option[0])) {
                 os_realloc(syscheck_option[0], sizeof(char *) * (counter_opt + 2), syscheck_option[0]);
@@ -2550,6 +2551,7 @@ static void process_option(char ***syscheck_option, xml_node *node) {
         }
         os_free(new_opt[i]);
     }
+    os_free(dir);
     os_free(new_opt);
 }
 
